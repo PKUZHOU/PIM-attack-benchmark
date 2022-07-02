@@ -38,14 +38,14 @@ static void read_input(T* A, unsigned int nr_elements) {
     }
 }
 
-// Compute output in the host
-static T reduction_host(T* A, unsigned int nr_elements) {
-    T count = 0;
-    for (unsigned int i = 0; i < nr_elements; i++) {
-        count += A[i];
-    }
-    return count;
-}
+// // Compute output in the host
+// static T reduction_host(T* A, unsigned int nr_elements) {
+//     T count = 0;
+//     for (unsigned int i = 0; i < nr_elements; i++) {
+//         count += A[i];
+//     }
+//     return count;
+// }
 
 // Main of the Host Application
 int main(int argc, char **argv) {
@@ -97,11 +97,11 @@ int main(int argc, char **argv) {
     for(int rep = 0; rep < p.n_warmup + p.n_reps; rep++) {
 
         // Compute output on CPU (performance comparison and verification purposes)
-        if(rep >= p.n_warmup)
-            start(&timer, 0, rep - p.n_warmup);
-        count_host = reduction_host(A, input_size);
-        if(rep >= p.n_warmup)
-            stop(&timer, 0);
+        // if(rep >= p.n_warmup)
+            // start(&timer, 0, rep - p.n_warmup);
+        // count_host = reduction_host(A, input_size);
+        // if(rep >= p.n_warmup)
+            // stop(&timer, 0);
 
         printf("Load input data\n");
         if(rep >= p.n_warmup)
@@ -229,8 +229,8 @@ int main(int argc, char **argv) {
 #endif
 
     // Print timing results
-    printf("CPU ");
-    print(&timer, 0, p.n_reps);
+    // printf("CPU ");
+    // print(&timer, 0, p.n_reps);
     printf("CPU-DPU ");
     print(&timer, 1, p.n_reps);
     printf("DPU Kernel ");
@@ -244,18 +244,18 @@ int main(int argc, char **argv) {
     printf("DPU Energy (J): %f\t", energy);
     #endif	
 
-    // Check output
-    bool status = true;
-    if(count != count_host) status = false;
-    if (status) {
-        printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] Outputs are equal\n");
-    } else {
-        printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] Outputs differ!\n");
-    }
+    // // Check output
+    // bool status = true;
+    // if(count != count_host) status = false;
+    // if (status) {
+    //     printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] Outputs are equal\n");
+    // } else {
+    //     printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] Outputs differ!\n");
+    // }
 
     // Deallocation
     free(A);
     DPU_ASSERT(dpu_free(dpu_set));
 	
-    return status ? 0 : -1;
+    return 1;
 }

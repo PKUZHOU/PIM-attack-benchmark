@@ -245,60 +245,60 @@ int main(int argc, char** argv) {
     PRINT_INFO(p.verbosity >= 1, "    DPU-CPU Time: %f ms", retrieveTime*1e3);
     if(p.verbosity == 0) PRINT("CPU-DPU Time(ms): %f    DPU Kernel Time (ms): %f    Inter-DPU Time (ms): %f    DPU-CPU Time (ms): %f", loadTime*1e3, dpuTime*1e3, hostTime*1e3, retrieveTime*1e3);
 
-    // Calculating result on CPU
-    PRINT_INFO(p.verbosity >= 1, "Calculating result on CPU");
-    uint32_t* nodeLevelReference = calloc(numNodes, sizeof(uint32_t)); // Node's BFS level (initially all 0 meaning not reachable)
-    memset(nextFrontier, 0, numNodes/64*sizeof(uint64_t));
-    setBit(nextFrontier[0], 0); // Initialize frontier to first node
-    nextFrontierEmpty = 0;
-    level = 1;
-    while(!nextFrontierEmpty) {
-        // Update current frontier and visited list based on the next frontier from the previous iteration
-        for(uint32_t nodeTileIdx = 0; nodeTileIdx < numNodes/64; ++nodeTileIdx) {
-            uint64_t nextFrontierTile = nextFrontier[nodeTileIdx];
-            currentFrontier[nodeTileIdx] = nextFrontierTile;
-            if(nextFrontierTile) {
-                visited[nodeTileIdx] |= nextFrontierTile;
-                nextFrontier[nodeTileIdx] = 0;
-                for(uint32_t node = nodeTileIdx*64; node < (nodeTileIdx + 1)*64; ++node) {
-                    if(isSet(nextFrontierTile, node%64)) {
-                        nodeLevelReference[node] = level;
-                    }
-                }
-            }
-        }
-        // Visit neighbors of the current frontier
-        nextFrontierEmpty = 1;
-        for(uint32_t nodeTileIdx = 0; nodeTileIdx < numNodes/64; ++nodeTileIdx) {
-            uint64_t currentFrontierTile = currentFrontier[nodeTileIdx];
-            if(currentFrontierTile) {
-                for(uint32_t node = nodeTileIdx*64; node < (nodeTileIdx + 1)*64; ++node) {
-                    if(isSet(currentFrontierTile, node%64)) { // If the node is in the current frontier
-                        // Visit its neighbors
-                        uint32_t nodePtr = nodePtrs[node];
-                        uint32_t nextNodePtr = nodePtrs[node + 1];
-                        for(uint32_t i = nodePtr; i < nextNodePtr; ++i) {
-                            uint32_t neighbor = neighborIdxs[i];
-                            if(!isSet(visited[neighbor/64], neighbor%64)) { // Neighbor not previously visited
-                                // Add neighbor to next frontier
-                                setBit(nextFrontier[neighbor/64], neighbor%64);
-                                nextFrontierEmpty = 0;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        ++level;
-    }
+    // // Calculating result on CPU
+    // PRINT_INFO(p.verbosity >= 1, "Calculating result on CPU");
+    // uint32_t* nodeLevelReference = calloc(numNodes, sizeof(uint32_t)); // Node's BFS level (initially all 0 meaning not reachable)
+    // memset(nextFrontier, 0, numNodes/64*sizeof(uint64_t));
+    // setBit(nextFrontier[0], 0); // Initialize frontier to first node
+    // nextFrontierEmpty = 0;
+    // level = 1;
+    // while(!nextFrontierEmpty) {
+    //     // Update current frontier and visited list based on the next frontier from the previous iteration
+    //     for(uint32_t nodeTileIdx = 0; nodeTileIdx < numNodes/64; ++nodeTileIdx) {
+    //         uint64_t nextFrontierTile = nextFrontier[nodeTileIdx];
+    //         currentFrontier[nodeTileIdx] = nextFrontierTile;
+    //         if(nextFrontierTile) {
+    //             visited[nodeTileIdx] |= nextFrontierTile;
+    //             nextFrontier[nodeTileIdx] = 0;
+    //             for(uint32_t node = nodeTileIdx*64; node < (nodeTileIdx + 1)*64; ++node) {
+    //                 if(isSet(nextFrontierTile, node%64)) {
+    //                     nodeLevelReference[node] = level;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     // Visit neighbors of the current frontier
+    //     nextFrontierEmpty = 1;
+    //     for(uint32_t nodeTileIdx = 0; nodeTileIdx < numNodes/64; ++nodeTileIdx) {
+    //         uint64_t currentFrontierTile = currentFrontier[nodeTileIdx];
+    //         if(currentFrontierTile) {
+    //             for(uint32_t node = nodeTileIdx*64; node < (nodeTileIdx + 1)*64; ++node) {
+    //                 if(isSet(currentFrontierTile, node%64)) { // If the node is in the current frontier
+    //                     // Visit its neighbors
+    //                     uint32_t nodePtr = nodePtrs[node];
+    //                     uint32_t nextNodePtr = nodePtrs[node + 1];
+    //                     for(uint32_t i = nodePtr; i < nextNodePtr; ++i) {
+    //                         uint32_t neighbor = neighborIdxs[i];
+    //                         if(!isSet(visited[neighbor/64], neighbor%64)) { // Neighbor not previously visited
+    //                             // Add neighbor to next frontier
+    //                             setBit(nextFrontier[neighbor/64], neighbor%64);
+    //                             nextFrontierEmpty = 0;
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     ++level;
+    // }
 
-    // Verify the result
-    PRINT_INFO(p.verbosity >= 1, "Verifying the result");
-    for(uint32_t nodeIdx = 0; nodeIdx < numNodes; ++nodeIdx) {
-        if(nodeLevel[nodeIdx] != nodeLevelReference[nodeIdx]) {
-            PRINT_ERROR("Mismatch at node %u (CPU result = level %u, DPU result = level %u)", nodeIdx, nodeLevelReference[nodeIdx], nodeLevel[nodeIdx]);
-        }
-    }
+    // // Verify the result
+    // PRINT_INFO(p.verbosity >= 1, "Verifying the result");
+    // for(uint32_t nodeIdx = 0; nodeIdx < numNodes; ++nodeIdx) {
+    //     if(nodeLevel[nodeIdx] != nodeLevelReference[nodeIdx]) {
+    //         PRINT_ERROR("Mismatch at node %u (CPU result = level %u, DPU result = level %u)", nodeIdx, nodeLevelReference[nodeIdx], nodeLevel[nodeIdx]);
+    //     }
+    // }
 
     // Display DPU Logs
     if(p.verbosity >= 2) {
@@ -318,7 +318,7 @@ int main(int argc, char** argv) {
     free(visited);
     free(currentFrontier);
     free(nextFrontier);
-    free(nodeLevelReference);
+    // free(nodeLevelReference);
 
     return 0;
 

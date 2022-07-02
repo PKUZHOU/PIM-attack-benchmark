@@ -172,28 +172,28 @@ int main(int argc, char** argv) {
     PRINT_INFO(p.verbosity >= 1, "    DPU-CPU Time: %f ms", retrieveTime*1e3);
     if(p.verbosity == 0) PRINT("CPU-DPU Time(ms): %f    DPU Kernel Time (ms): %f    DPU-CPU Time (ms): %f", loadTime*1e3, dpuTime*1e3, retrieveTime*1e3);
 
-    // Calculating result on CPU
-    PRINT_INFO(p.verbosity >= 1, "Calculating result on CPU");
-    float* outVectorReference = malloc(numRows*sizeof(float));
-    for(uint32_t rowIdx = 0; rowIdx < numRows; ++rowIdx) {
-        float sum = 0.0f;
-        for(uint32_t i = rowPtrs[rowIdx]; i < rowPtrs[rowIdx + 1]; ++i) {
-            uint32_t colIdx = nonzeros[i].col;
-            float value = nonzeros[i].value;
-            sum += inVector[colIdx]*value;
-        }
-        outVectorReference[rowIdx] = sum;
-    }
+    // // Calculating result on CPU
+    // PRINT_INFO(p.verbosity >= 1, "Calculating result on CPU");
+    // float* outVectorReference = malloc(numRows*sizeof(float));
+    // for(uint32_t rowIdx = 0; rowIdx < numRows; ++rowIdx) {
+    //     float sum = 0.0f;
+    //     for(uint32_t i = rowPtrs[rowIdx]; i < rowPtrs[rowIdx + 1]; ++i) {
+    //         uint32_t colIdx = nonzeros[i].col;
+    //         float value = nonzeros[i].value;
+    //         sum += inVector[colIdx]*value;
+    //     }
+    //     outVectorReference[rowIdx] = sum;
+    // }
 
-    // Verify the result
-    PRINT_INFO(p.verbosity >= 1, "Verifying the result");
-    for(uint32_t rowIdx = 0; rowIdx < numRows; ++rowIdx) {
-        float diff = (outVectorReference[rowIdx] - outVector[rowIdx])/outVectorReference[rowIdx];
-        const float tolerance = 0.00001;
-        if(diff > tolerance || diff < -tolerance) {
-            PRINT_ERROR("Mismatch at index %u (CPU result = %f, DPU result = %f)", rowIdx, outVectorReference[rowIdx], outVector[rowIdx]);
-        }
-    }
+    // // Verify the result
+    // PRINT_INFO(p.verbosity >= 1, "Verifying the result");
+    // for(uint32_t rowIdx = 0; rowIdx < numRows; ++rowIdx) {
+    //     float diff = (outVectorReference[rowIdx] - outVector[rowIdx])/outVectorReference[rowIdx];
+    //     const float tolerance = 0.00001;
+    //     if(diff > tolerance || diff < -tolerance) {
+    //         PRINT_ERROR("Mismatch at index %u (CPU result = %f, DPU result = %f)", rowIdx, outVectorReference[rowIdx], outVector[rowIdx]);
+    //     }
+    // }
 
     // Display DPU Logs
     if(p.verbosity >= 2) {
@@ -211,7 +211,7 @@ int main(int argc, char** argv) {
     freeCSRMatrix(csrMatrix);
     free(inVector);
     free(outVector);
-    free(outVectorReference);
+    // free(outVectorReference);
 
     return 0;
 }

@@ -55,24 +55,24 @@ static void init_data(T** A, T* B, T* B_host, unsigned int m_size, unsigned int 
 	}
 }
 
-// Compute output in the host
-static void mlp_host(T* C, T** A, T* B, unsigned int m_size, unsigned int n_size) {
+// // Compute output in the host
+// static void mlp_host(T* C, T** A, T* B, unsigned int m_size, unsigned int n_size) {
 
-	for (unsigned int nl = 0; nl < NUM_LAYERS; nl++){
-		for (unsigned int m = 0; m < m_size; m++){
-			C[m] = 0;
-		}
-		for (unsigned int m = 0; m < m_size; m++){
-			for (unsigned int n = 0; n < n_size; n++){
-				C[m] += A[nl][m * n_size + n] * B[n];
-			}
-			C[m] = max(0, C[m]);
-		}
-		for (unsigned int n = 0; n < n_size; n++){
-			B[n] = C[n];
-		}
-	}
-}
+// 	for (unsigned int nl = 0; nl < NUM_LAYERS; nl++){
+// 		for (unsigned int m = 0; m < m_size; m++){
+// 			C[m] = 0;
+// 		}
+// 		for (unsigned int m = 0; m < m_size; m++){
+// 			for (unsigned int n = 0; n < n_size; n++){
+// 				C[m] += A[nl][m * n_size + n] * B[n];
+// 			}
+// 			C[m] = max(0, C[m]);
+// 		}
+// 		for (unsigned int n = 0; n < n_size; n++){
+// 			B[n] = C[n];
+// 		}
+// 	}
+// }
 
 // Main of the Host Application
 int main(int argc, char **argv) {
@@ -156,9 +156,9 @@ int main(int argc, char **argv) {
 	init_data(A, B, B_host, m_size, n_size);
 
 	// Compute output on CPU (performance comparison and verification purposes)
-	start(&timer, 0, 0);
-	mlp_host(C, A, B_host, m_size, n_size);
-	stop(&timer, 0);
+	// start(&timer, 0, 0);
+	// mlp_host(C, A, B_host, m_size, n_size);
+	// stop(&timer, 0);
 
 	for (unsigned int rep = 0; rep < p.n_warmup + p.n_reps; rep++) {
 		if (rep >= p.n_warmup)
@@ -289,8 +289,8 @@ int main(int argc, char **argv) {
 #endif
 
 	// Print timing results
-	printf("CPU Version Time (ms): ");
-	print(&timer, 0, 1);
+	// printf("CPU Version Time (ms): ");
+	// print(&timer, 0, 1);
 	printf("CPU-DPU Time (ms): ");
 	print(&timer, 1, p.n_reps);
 	printf("DPU Kernel Time (ms): ");
@@ -305,26 +305,26 @@ int main(int argc, char **argv) {
 #endif
 	printf("\n\n");
 
-	// Check output
-	bool status = true;
-	unsigned int n, j;
-	i = 0;
-	for (n = 0; n < nr_of_dpus; n++) {
-		for (j = 0; j < dpu_info[n].rows_per_dpu; j++) {
-			if(C[i] != C_dpu[n * max_rows_per_dpu + j]) {
-				status = false;
-#if PRINT
-				printf("%d: %d -- %d\n", i, C[i], C_dpu[n * max_rows_per_dpu + j]);
-#endif
-			}
-			i++;
-		}
-	}
-	if (status) {
-		printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] Outputs are equal\n");
-	} else {
-		printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] Outputs differ!\n");
-	}
+// 	// Check output
+// 	bool status = true;
+// 	unsigned int n, j;
+// 	i = 0;
+// 	for (n = 0; n < nr_of_dpus; n++) {
+// 		for (j = 0; j < dpu_info[n].rows_per_dpu; j++) {
+// 			if(C[i] != C_dpu[n * max_rows_per_dpu + j]) {
+// 				status = false;
+// #if PRINT
+// 				printf("%d: %d -- %d\n", i, C[i], C_dpu[n * max_rows_per_dpu + j]);
+// #endif
+// 			}
+// 			i++;
+// 		}
+// 	}
+// 	if (status) {
+// 		printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] Outputs are equal\n");
+// 	} else {
+// 		printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] Outputs differ!\n");
+// 	}
 
 	// Deallocation
 	for(i = 0; i < NUM_LAYERS; i++)
@@ -339,5 +339,5 @@ int main(int argc, char **argv) {
 	DPU_ASSERT(dpu_probe_deinit(&probe));
 #endif
 
-	return status ? 0 : -1;
+	return 1;
 }

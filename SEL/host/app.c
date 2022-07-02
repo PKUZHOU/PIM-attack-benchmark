@@ -44,17 +44,17 @@ static void read_input(T* A, unsigned int nr_elements, unsigned int nr_elements_
     }
 }
 
-// Compute output in the host
-static unsigned int select_host(T* C, T* A, unsigned int nr_elements) {
-    unsigned int pos = 0;
-    for (unsigned int i = 0; i < nr_elements; i++) {
-        if(!pred(A[i])) {
-            C[pos] = A[i];
-            pos++;
-        }
-    }
-    return pos;
-}
+// // Compute output in the host
+// static unsigned int select_host(T* C, T* A, unsigned int nr_elements) {
+//     unsigned int pos = 0;
+//     for (unsigned int i = 0; i < nr_elements; i++) {
+//         if(!pred(A[i])) {
+//             C[pos] = A[i];
+//             pos++;
+//         }
+//     }
+//     return pos;
+// }
 
 // Main of the Host Application
 int main(int argc, char **argv) {
@@ -103,11 +103,11 @@ int main(int argc, char **argv) {
     for(int rep = 0; rep < p.n_warmup + p.n_reps; rep++) {
 
         // Compute output on CPU (performance comparison and verification purposes)
-        if(rep >= p.n_warmup)
-            start(&timer, 0, rep - p.n_warmup);
-        total_count = select_host(C, A, input_size);
-        if(rep >= p.n_warmup)
-            stop(&timer, 0);
+        // if(rep >= p.n_warmup)
+        //     start(&timer, 0, rep - p.n_warmup);
+        // total_count = select_host(C, A, input_size);
+        // if(rep >= p.n_warmup)
+        //     stop(&timer, 0);
 
         printf("Load input data\n");
         if(rep >= p.n_warmup)
@@ -211,8 +211,8 @@ int main(int argc, char **argv) {
     }
 
     // Print timing results
-    printf("CPU ");
-    print(&timer, 0, p.n_reps);
+    // printf("CPU ");
+    // print(&timer, 0, p.n_reps);
     printf("CPU-DPU ");
     print(&timer, 1, p.n_reps);
     printf("DPU Kernel ");
@@ -228,22 +228,22 @@ int main(int argc, char **argv) {
     printf("DPU Energy (J): %f\t", energy);
     #endif	
 
-    // Check output
-    bool status = true;
-    if(accum != total_count) status = false;
-    for (i = 0; i < accum; i++) {
-        if(C[i] != bufferC[i]){ 
-            status = false;
-#if PRINT
-            printf("%d: %lu -- %lu\n", i, C[i], bufferC[i]);
-#endif
-        }
-    }
-    if (status) {
-        printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] Outputs are equal\n");
-    } else {
-        printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] Outputs differ!\n");
-    }
+//     // Check output
+//     bool status = true;
+//     if(accum != total_count) status = false;
+//     for (i = 0; i < accum; i++) {
+//         if(C[i] != bufferC[i]){ 
+//             status = false;
+// #if PRINT
+//             printf("%d: %lu -- %lu\n", i, C[i], bufferC[i]);
+// #endif
+//         }
+//     }
+//     if (status) {
+//         printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] Outputs are equal\n");
+//     } else {
+//         printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] Outputs differ!\n");
+//     }
 
     // Deallocation
     free(A);
@@ -251,5 +251,5 @@ int main(int argc, char **argv) {
     free(C2);
     DPU_ASSERT(dpu_free(dpu_set));
 	
-    return status ? 0 : -1;
+    return 1;
 }

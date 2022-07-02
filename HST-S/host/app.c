@@ -55,23 +55,23 @@ static void read_input(T* A, const Params p) {
     }
 }
 
-// Compute output in the host
-static void histogram_host(unsigned int* histo, T* A, unsigned int bins, unsigned int nr_elements, int exp, unsigned int nr_of_dpus) {
-    if(!exp){
-        for (unsigned int i = 0; i < nr_of_dpus; i++) {
-            for (unsigned int j = 0; j < nr_elements; j++) {
-                T d = A[j];
-                histo[i * bins + ((d * bins) >> DEPTH)] += 1;
-            }
-        }
-    }
-    else{
-        for (unsigned int j = 0; j < nr_elements; j++) {
-            T d = A[j];
-            histo[(d * bins) >> DEPTH] += 1;
-        }
-    }
-}
+// // Compute output in the host
+// static void histogram_host(unsigned int* histo, T* A, unsigned int bins, unsigned int nr_elements, int exp, unsigned int nr_of_dpus) {
+//     if(!exp){
+//         for (unsigned int i = 0; i < nr_of_dpus; i++) {
+//             for (unsigned int j = 0; j < nr_elements; j++) {
+//                 T d = A[j];
+//                 histo[i * bins + ((d * bins) >> DEPTH)] += 1;
+//             }
+//         }
+//     }
+//     else{
+//         for (unsigned int j = 0; j < nr_elements; j++) {
+//             T d = A[j];
+//             histo[(d * bins) >> DEPTH] += 1;
+//         }
+//     }
+// }
 
 // Main of the Host Application
 int main(int argc, char **argv) {
@@ -136,12 +136,12 @@ int main(int argc, char **argv) {
         memset(histo_host, 0, p.bins * sizeof(unsigned int));
         memset(histo, 0, nr_of_dpus * p.bins * sizeof(unsigned int));
 
-        // Compute output on CPU (performance comparison and verification purposes)
-        if(rep >= p.n_warmup)
-            start(&timer, 0, rep - p.n_warmup);
-        histogram_host(histo_host, A, p.bins, p.input_size, 1, nr_of_dpus);
-        if(rep >= p.n_warmup)
-            stop(&timer, 0);
+        // // Compute output on CPU (performance comparison and verification purposes)
+        // if(rep >= p.n_warmup)
+        //     start(&timer, 0, rep - p.n_warmup);
+        // histogram_host(histo_host, A, p.bins, p.input_size, 1, nr_of_dpus);
+        // if(rep >= p.n_warmup)
+        //     stop(&timer, 0);
 
         printf("Load input data\n");
         if(rep >= p.n_warmup)
@@ -225,8 +225,8 @@ int main(int argc, char **argv) {
     }
 
     // Print timing results
-    printf("CPU ");
-    print(&timer, 0, p.n_reps);
+    // printf("CPU ");
+    // print(&timer, 0, p.n_reps);
     printf("CPU-DPU ");
     print(&timer, 1, p.n_reps);
     printf("DPU Kernel ");
@@ -240,40 +240,40 @@ int main(int argc, char **argv) {
     printf("DPU Energy (J): %f\t", energy);
     #endif	
 
-    // Check output
-    bool status = true;
-    if(p.exp == 1) 
-        for (unsigned int j = 0; j < p.bins; j++) {
-            if(histo_host[j] != histo[j]){ 
-                status = false;
-#if PRINT
-                printf("%u - %u: %u -- %u\n", j, j, histo_host[j], histo[j]);
-#endif
-            }
-        }
-    else if(p.exp == 2) 
-        for (unsigned int j = 0; j < p.bins; j++) {
-            if(dpu_s * histo_host[j] != histo[j]){ 
-                status = false;
-#if PRINT
-                printf("%u - %u: %u -- %u\n", j, j, dpu_s * histo_host[j], histo[j]);
-#endif
-            }
-        }
-    else
-        for (unsigned int j = 0; j < p.bins; j++) {
-            if(nr_of_dpus * histo_host[j] != histo[j]){ 
-                status = false;
-#if PRINT
-                printf("%u - %u: %u -- %u\n", j, j, nr_of_dpus * histo_host[j], histo[j]);
-#endif
-            }
-        }
-    if (status) {
-        printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] Outputs are equal\n");
-    } else {
-        printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] Outputs differ!\n");
-    }
+//     // Check output
+//     bool status = true;
+//     if(p.exp == 1) 
+//         for (unsigned int j = 0; j < p.bins; j++) {
+//             if(histo_host[j] != histo[j]){ 
+//                 status = false;
+// #if PRINT
+//                 printf("%u - %u: %u -- %u\n", j, j, histo_host[j], histo[j]);
+// #endif
+//             }
+//         }
+//     else if(p.exp == 2) 
+//         for (unsigned int j = 0; j < p.bins; j++) {
+//             if(dpu_s * histo_host[j] != histo[j]){ 
+//                 status = false;
+// #if PRINT
+//                 printf("%u - %u: %u -- %u\n", j, j, dpu_s * histo_host[j], histo[j]);
+// #endif
+//             }
+//         }
+//     else
+//         for (unsigned int j = 0; j < p.bins; j++) {
+//             if(nr_of_dpus * histo_host[j] != histo[j]){ 
+//                 status = false;
+// #if PRINT
+//                 printf("%u - %u: %u -- %u\n", j, j, nr_of_dpus * histo_host[j], histo[j]);
+// #endif
+//             }
+//         }
+//     if (status) {
+//         printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] Outputs are equal\n");
+//     } else {
+//         printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] Outputs differ!\n");
+//     }
 
     // Deallocation
     free(A);
@@ -281,5 +281,5 @@ int main(int argc, char **argv) {
     free(histo);
     DPU_ASSERT(dpu_free(dpu_set));
 	
-    return status ? 0 : -1;
+    return 1;
 }

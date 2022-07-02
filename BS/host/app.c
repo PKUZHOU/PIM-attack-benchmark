@@ -36,33 +36,33 @@ void create_test_file(DTYPE * input, DTYPE * querys, uint64_t  nr_elements, uint
 	}
 }
 
-// Compute output in the host
-int64_t binarySearch(DTYPE * input, DTYPE * querys, DTYPE input_size, uint64_t num_querys)
-{
-	uint64_t result = -1;
-	DTYPE r;
-	for(uint64_t q = 0; q < num_querys; q++)
-	{
-		DTYPE l = 0;
-		r = input_size;
-		while (l <= r) {
-			DTYPE m = l + (r - l) / 2;
+// // Compute output in the host
+// int64_t binarySearch(DTYPE * input, DTYPE * querys, DTYPE input_size, uint64_t num_querys)
+// {
+// 	uint64_t result = -1;
+// 	DTYPE r;
+// 	for(uint64_t q = 0; q < num_querys; q++)
+// 	{
+// 		DTYPE l = 0;
+// 		r = input_size;
+// 		while (l <= r) {
+// 			DTYPE m = l + (r - l) / 2;
 
-			// Check if x is present at mid
-			if (input[m] == querys[q])
-			result = m;
+// 			// Check if x is present at mid
+// 			if (input[m] == querys[q])
+// 			result = m;
 
-			// If x greater, ignore left half
-			if (input[m] < querys[q])
-			l = m + 1;
+// 			// If x greater, ignore left half
+// 			if (input[m] < querys[q])
+// 			l = m + 1;
 
-			// If x is smaller, ignore right half
-			else
-			r = m - 1;
-		}
-	}
-	return result;
-}
+// 			// If x is smaller, ignore right half
+// 			else
+// 			r = m - 1;
+// 		}
+// 	}
+// 	return result;
+// }
 
 
 // Main of the Host Application
@@ -101,10 +101,10 @@ int main(int argc, char **argv) {
 	// Create an input file with arbitrary data
 	create_test_file(input, querys, input_size, num_querys);
 
-	// Compute host solution
-	start(&timer, 0, 0);
-	result_host = binarySearch(input, querys, input_size - 1, num_querys);
-	stop(&timer, 0);
+	// // Compute host solution
+	// start(&timer, 0, 0);
+	// result_host = binarySearch(input, querys, input_size - 1, num_querys);
+	// stop(&timer, 0);
 
 	// Create kernel arguments
 	uint64_t slice_per_dpu          = num_querys / nr_of_dpus;
@@ -218,15 +218,15 @@ int main(int argc, char **argv) {
 	printf("DPU Energy (J): %f\t", energy * num_iterations);
 	#endif
 
-	int status = (result_dpu == result_host);
-	if (status) {
-		printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] results are equal\n");
-	} else {
-		printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] results differ!\n");
-	}
+	// int status = (result_dpu == result_host);
+	// if (status) {
+	// 	printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] results are equal\n");
+	// } else {
+	// 	printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] results differ!\n");
+	// }
 
 	free(input);
 	DPU_ASSERT(dpu_free(dpu_set));
 
-	return status ? 0 : 1;
+	return 1;
 }

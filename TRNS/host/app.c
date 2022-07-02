@@ -41,21 +41,21 @@ static void read_input(T* A, unsigned int nr_elements) {
     }
 }
 
-// Compute output in the host
-static void trns_host(T* input, unsigned int A, unsigned int B, unsigned int b){
-   T* output = (T*) malloc(sizeof(T) * A * B * b);
-   unsigned int next;
-   for (unsigned int j = 0; j < b; j++){
-      for (unsigned int i = 0; i < A * B; i++){
-         next = (i * A) - (A * B - 1) * (i / B);
-         output[next * b + j] = input[i*b+j];
-      }
-   }
-   for (unsigned int k = 0; k < A * B * b; k++){
-      input[k] = output[k];
-   }
-   free(output);
-}
+// // Compute output in the host
+// static void trns_host(T* input, unsigned int A, unsigned int B, unsigned int b){
+//    T* output = (T*) malloc(sizeof(T) * A * B * b);
+//    unsigned int next;
+//    for (unsigned int j = 0; j < b; j++){
+//       for (unsigned int i = 0; i < A * B; i++){
+//          next = (i * A) - (A * B - 1) * (i / B);
+//          output[next * b + j] = input[i*b+j];
+//       }
+//    }
+//    for (unsigned int k = 0; k < A * B * b; k++){
+//       input[k] = output[k];
+//    }
+//    free(output);
+// }
 
 // Main of the Host Application
 int main(int argc, char **argv) {
@@ -99,12 +99,12 @@ int main(int argc, char **argv) {
 
         int timer_fix = 0;
         // Compute output on CPU (performance comparison and verification purposes)
-        memcpy(A_host, A_backup, M_ * m * N_ * n * sizeof(T));
-        if(rep >= p.n_warmup)
-            start(&timer, 0, rep - p.n_warmup + timer_fix);
-        trns_host(A_host, M_ * m, N_ * n, 1);
-        if(rep >= p.n_warmup)
-            stop(&timer, 0);
+        // memcpy(A_host, A_backup, M_ * m * N_ * n * sizeof(T));
+        // if(rep >= p.n_warmup)
+        //     start(&timer, 0, rep - p.n_warmup + timer_fix);
+        // trns_host(A_host, M_ * m, N_ * n, 1);
+        // if(rep >= p.n_warmup)
+        //     stop(&timer, 0);
 
         unsigned int curr_dpu = 0;
         unsigned int active_dpus;
@@ -237,9 +237,9 @@ int main(int argc, char **argv) {
 
     }
 
-    // Print timing results
-    printf("CPU ");
-    print(&timer, 0, p.n_reps);
+    // // Print timing results
+    // printf("CPU ");
+    // print(&timer, 0, p.n_reps);
     printf("CPU-DPU (Step 1) ");
     print(&timer, 1, p.n_reps);
     printf("Step 2 ");
@@ -255,21 +255,21 @@ int main(int argc, char **argv) {
     printf("DPU Energy (J): %f\t", energy);
     #endif	
 
-    // Check output
-    bool status = true;
-    for (i = 0; i < M_ * m * N_ * n; i++) {
-        if(A_host[i] != A_result[i]){ 
-            status = false;
-#if PRINT
-            printf("%d: %lu -- %lu\n", i, A_host[i], A_result[i]);
-#endif
-        }
-    }
-    if (status) {
-        printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] Outputs are equal\n");
-    } else {
-        printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] Outputs differ!\n");
-    }
+//     // Check output
+//     bool status = true;
+//     for (i = 0; i < M_ * m * N_ * n; i++) {
+//         if(A_host[i] != A_result[i]){ 
+//             status = false;
+// #if PRINT
+//             printf("%d: %lu -- %lu\n", i, A_host[i], A_result[i]);
+// #endif
+//         }
+//     }
+//     if (status) {
+//         printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] Outputs are equal\n");
+//     } else {
+//         printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] Outputs differ!\n");
+//     }
 
     // Deallocation
     free(A_host);
@@ -277,5 +277,5 @@ int main(int argc, char **argv) {
     free(A_result);
     free(done_host);
 	
-    return status ? 0 : -1;
+    return 1;
 }

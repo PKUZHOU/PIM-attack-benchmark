@@ -43,11 +43,11 @@ static void read_input(T* A, T* B, unsigned int nr_elements) {
 }
 
 // Compute output in the host
-static void vector_addition_host(T* C, T* A, T* B, unsigned int nr_elements) {
-    for (unsigned int i = 0; i < nr_elements; i++) {
-        C[i] = A[i] + B[i];
-    }
-}
+// static void vector_addition_host(T* C, T* A, T* B, unsigned int nr_elements) {
+//     for (unsigned int i = 0; i < nr_elements; i++) {
+//         C[i] = A[i] + B[i];
+//     }
+// }
 
 // Main of the Host Application
 int main(int argc, char **argv) {
@@ -97,11 +97,11 @@ int main(int argc, char **argv) {
     for(int rep = 0; rep < p.n_warmup + p.n_reps; rep++) {
 
         // Compute output on CPU (performance comparison and verification purposes)
-        if(rep >= p.n_warmup)
-            start(&timer, 0, rep - p.n_warmup);
-        vector_addition_host(C, A, B, input_size);
-        if(rep >= p.n_warmup)
-            stop(&timer, 0);
+        // if(rep >= p.n_warmup)
+        //     start(&timer, 0, rep - p.n_warmup);
+        // vector_addition_host(C, A, B, input_size);
+        // if(rep >= p.n_warmup)
+        //     stop(&timer, 0);
 
         printf("Load input data\n");
         if(rep >= p.n_warmup)
@@ -180,8 +180,8 @@ int main(int argc, char **argv) {
     }
 
     // Print timing results
-    printf("CPU ");
-    print(&timer, 0, p.n_reps);
+    // printf("CPU ");
+    // print(&timer, 0, p.n_reps);
     printf("CPU-DPU ");
     print(&timer, 1, p.n_reps);
     printf("DPU Kernel ");
@@ -196,20 +196,20 @@ int main(int argc, char **argv) {
 #endif	
 
     // Check output
-    bool status = true;
-    for (i = 0; i < input_size; i++) {
-        if(C[i] != bufferC[i]){ 
-            status = false;
-#if PRINT
-            printf("%d: %u -- %u\n", i, C[i], bufferC[i]);
-#endif
-        }
-    }
-    if (status) {
-        printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] Outputs are equal\n");
-    } else {
-        printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] Outputs differ!\n");
-    }
+    // bool status = true;
+    // for (i = 0; i < input_size; i++) {
+    //     if(C[i] != bufferC[i]){ 
+    //         status = false;
+// #if PRINT
+            // printf("%d: %u -- %u\n", i, C[i], bufferC[i]);
+// #endif
+        // }
+    // }
+    // if (status) {
+        // printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] Outputs are equal\n");
+    // } else {
+        // printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] Outputs differ!\n");
+    // }
 
     // Deallocation
     free(A);
@@ -218,5 +218,5 @@ int main(int argc, char **argv) {
     free(C2);
     DPU_ASSERT(dpu_free(dpu_set));
 	
-    return status ? 0 : -1;
+    return 0;
 }

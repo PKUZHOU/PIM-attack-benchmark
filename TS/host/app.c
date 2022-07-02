@@ -51,33 +51,33 @@ static DTYPE *create_test_file(unsigned int ts_elements, unsigned int query_elem
 	return tSeries;
 }
 
-// Compute output in the host
-static void streamp(DTYPE* tSeries, DTYPE* AMean, DTYPE* ASigma, int ProfileLength,
-		DTYPE* query, int queryLength, DTYPE queryMean, DTYPE queryStdDeviation)
-{
-	DTYPE distance;
-	DTYPE dotprod;
-	minHost    = INT32_MAX;
-	minHostIdx = 0;
+// // Compute output in the host
+// static void streamp(DTYPE* tSeries, DTYPE* AMean, DTYPE* ASigma, int ProfileLength,
+// 		DTYPE* query, int queryLength, DTYPE queryMean, DTYPE queryStdDeviation)
+// {
+// 	DTYPE distance;
+// 	DTYPE dotprod;
+// 	minHost    = INT32_MAX;
+// 	minHostIdx = 0;
 
-	for (int subseq = 0; subseq < ProfileLength; subseq++)
-	{
-		dotprod = 0;
-		for(int j = 0; j < queryLength; j++)
-		{
-			dotprod += tSeries[j + subseq] * query[j];
-		}
+// 	for (int subseq = 0; subseq < ProfileLength; subseq++)
+// 	{
+// 		dotprod = 0;
+// 		for(int j = 0; j < queryLength; j++)
+// 		{
+// 			dotprod += tSeries[j + subseq] * query[j];
+// 		}
 
-		distance = 2 * (queryLength - (dotprod - queryLength * AMean[subseq]
-					* queryMean) / (ASigma[subseq] * queryStdDeviation));
+// 		distance = 2 * (queryLength - (dotprod - queryLength * AMean[subseq]
+// 					* queryMean) / (ASigma[subseq] * queryStdDeviation));
 
-		if(distance < minHost)
-		{
-			minHost = distance;
-			minHostIdx = subseq;
-		}
-	}
-}
+// 		if(distance < minHost)
+// 		{
+// 			minHost = distance;
+// 			minHostIdx = subseq;
+// 		}
+// 	}
+// }
 
 static void compute_ts_statistics(unsigned int timeSeriesLength, unsigned int ProfileLength, unsigned int queryLength)
 {
@@ -294,11 +294,11 @@ int main(int argc, char **argv) {
 		}
 #endif
 
-		if (rep >= p.n_warmup)
-			start(&timer, 4, rep - p.n_warmup);
-		streamp(tSeries, AMean, ASigma, ts_size - query_length - 1, query, query_length, query_mean, query_std);
-		if(rep >= p.n_warmup)
-			stop(&timer, 4);
+		// if (rep >= p.n_warmup)
+		// 	start(&timer, 4, rep - p.n_warmup);
+		// streamp(tSeries, AMean, ASigma, ts_size - query_length - 1, query, query_length, query_mean, query_std);
+		// if(rep >= p.n_warmup)
+		// 	stop(&timer, 4);
 	}
 
 #if ENERGY
@@ -310,8 +310,8 @@ int main(int argc, char **argv) {
 #endif
 
 	// Print timing results
-	printf("CPU Version Time (ms): ");
-	print(&timer, 4, p.n_reps);
+	// printf("CPU Version Time (ms): ");
+	// print(&timer, 4, p.n_reps);
 	printf("Inter-DPU Time (ms): ");
 	print(&timer, 0, p.n_reps);
 	printf("CPU-DPU Time (ms): ");
@@ -325,12 +325,12 @@ int main(int argc, char **argv) {
 	printf("Energy (J): %f J\t", avg_energy);
 #endif
 
-	int status = (minHost == result.minValue);
-	if (status) {
-		printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] results are equal\n");
-	} else {
-		printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] results differ!\n");
-	}
+// 	int status = (minHost == result.minValue);
+// 	if (status) {
+// 		printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] results are equal\n");
+// 	} else {
+// 		printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] results differ!\n");
+// 	}
 
 	DPU_ASSERT(dpu_free(dpu_set));
 

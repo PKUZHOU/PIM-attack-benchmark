@@ -48,19 +48,19 @@ static void init_data(T* A, T* B, unsigned int m_size, unsigned int n_size) {
 }
 
 // Compute output in the host
-static void gemv_host(T* C, T* A, T* B, unsigned int m_size, unsigned int n_size) {
-	for (unsigned int i = 0; i < m_size; i++)
-	{
-		C[i] = 0;
-	}
+// static void gemv_host(T* C, T* A, T* B, unsigned int m_size, unsigned int n_size) {
+// 	for (unsigned int i = 0; i < m_size; i++)
+// 	{
+// 		C[i] = 0;
+// 	}
 
-	for (unsigned int m = 0; m < m_size; m++) {
-		for (unsigned int n = 0; n < n_size; n++)
-		{
-			C[m] += A[m * n_size + n] * B[n];
-		}
-	}
-}
+// 	for (unsigned int m = 0; m < m_size; m++) {
+// 		for (unsigned int n = 0; n < n_size; n++)
+// 		{
+// 			C[m] += A[m * n_size + n] * B[n];
+// 		}
+// 	}
+// }
 
 // Main of the Host Application
 int main(int argc, char **argv) {
@@ -140,9 +140,9 @@ int main(int argc, char **argv) {
 	Timer timer;
 
 	// Compute output on CPU (performance comparison and verification purposes)
-	start(&timer, 0, 0);
-	gemv_host(C, A, B, m_size, n_size);
-	stop(&timer, 0);
+	// start(&timer, 0, 0);
+	// gemv_host(C, A, B, m_size, n_size);
+	// stop(&timer, 0);
 	for (unsigned int rep = 0; rep < p.n_warmup + p.n_reps; rep++) {
 
 
@@ -220,39 +220,39 @@ int main(int argc, char **argv) {
 #endif
 
 	// Print timing results
-	printf("CPU Version Time (ms): ");
-	print(&timer, 0, 1);
-	printf("CPU-DPU Time (ms): ");
+	// printf("CPU Version Time (ms): ");
+	// print(&timer, 0, 1);
+	// printf("CPU-DPU Time (ms): ");
 	print(&timer, 1, p.n_reps);
 	printf("DPU Kernel Time (ms): ");
 	print(&timer, 2, p.n_reps);
 	printf("DPU-CPU Time (ms): ");
 	print(&timer, 3, p.n_reps);
-
+	printf("\n");
 #if ENERGY
 	printf("Energy (J): %f J\t", avg_energy);
 #endif
 
-	// Check output
-	bool status = true;
-	unsigned int n,j;
-	i = 0;
-	for (n = 0; n < nr_of_dpus; n++) {
-		for (j = 0; j < dpu_info[n].rows_per_dpu; j++) {
-			if(C[i] != C_dpu[n * max_rows_per_dpu + j]) {
-				status = false;
-#if PRINT
-	//			printf("%d: %d -- %d\n", i, C[i], C_dpu[n * max_rows_per_dpu + j]);
-#endif
-			}
-			i++;
-		}
-	}
-	if (status) {
-		printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] Outputs are equal\n");
-	} else {
-		printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] Outputs differ!\n");
-	}
+// 	// Check output
+// 	bool status = true;
+// 	unsigned int n,j;
+// 	i = 0;
+// 	for (n = 0; n < nr_of_dpus; n++) {
+// 		for (j = 0; j < dpu_info[n].rows_per_dpu; j++) {
+// 			if(C[i] != C_dpu[n * max_rows_per_dpu + j]) {
+// 				status = false;
+// #if PRINT
+// 	//			printf("%d: %d -- %d\n", i, C[i], C_dpu[n * max_rows_per_dpu + j]);
+// #endif
+// 			}
+// 			i++;
+// 		}
+// 	}
+// 	if (status) {
+// 		printf("[" ANSI_COLOR_GREEN "OK" ANSI_COLOR_RESET "] Outputs are equal\n");
+// 	} else {
+// 		printf("[" ANSI_COLOR_RED "ERROR" ANSI_COLOR_RESET "] Outputs differ!\n");
+// 	}
 
 	// Deallocation
 	free(A);
@@ -265,5 +265,5 @@ int main(int argc, char **argv) {
 	DPU_ASSERT(dpu_probe_deinit(&probe));
 #endif
 
-	return status ? 0 : -1;
+	return 1;
 }
